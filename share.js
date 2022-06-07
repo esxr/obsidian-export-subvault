@@ -29,12 +29,24 @@ function hasFilePath(file, filePath) {
 // console.log(hasFilePath('./first.md', 'x.png'));
 
 const obsidianFileConditions = (tag) => (file) => {
-    // skip if file isn't a '.md' file
+    // check if excalidraw file
+    // check if filename contains '.excalidraw'
+    if (file.includes('.excalidraw')) return true;
+
+    // only copy media files if file isn't a '.md' file
     if (!file.endsWith('.md')) {
         // check if the file is a media file
-        if (!(file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.gif'))) return false;
+        if (
+            file.endsWith('.png') || 
+            file.endsWith('.jpg') || 
+            file.endsWith('.jpeg') || 
+            file.endsWith('.gif')
+        ) return true;
+
+        return false;
     }
 
+    // if '.md' file
     // skip if the file doesn't have a '#<tag>' tag
     if (!hasTag(file, tag)) return false;
 
@@ -71,6 +83,17 @@ function copyByTag(source, target, tag) {
 
     // copy the obsidian folder
     copyFiles('./.obsidian', './temp/.obsidian', noCondition);
+
+    // trim empty directories
+    const files = fs.readdirSync(source);
+    files.forEach(file => {
+        const curSource = `${source}/${file}`;
+        if (fs.lstatSync(curSource).isDirectory()) {
+            if (fs.readdirSync(curSource).length == 0) {
+                fs.rmdirSync(curSource);
+            }
+        }
+    });
 }
 
 // test copyByTag
