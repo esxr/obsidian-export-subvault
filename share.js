@@ -37,10 +37,11 @@ const obsidianFileConditions = (tag) => (file) => {
     if (!file.endsWith('.md')) {
         // check if the file is a media file
         if (
-            file.endsWith('.png') || 
-            file.endsWith('.jpg') || 
-            file.endsWith('.jpeg') || 
-            file.endsWith('.gif')
+            file.endsWith('.png') ||
+            file.endsWith('.jpg') ||
+            file.endsWith('.jpeg') ||
+            file.endsWith('.gif') ||
+            file.endsWith('.pdf')
         ) return true;
 
         return false;
