@@ -29,12 +29,41 @@ function findReferences(file) {
     const regexString = `\\[\\[(.*?)\\]\\]`
     const referenceMatch = [...fileContent.matchAll(new RegExp(regexString, 'g'))];
     var references = referenceMatch.map(match => match[1]);
+    var filePaths = references.map(ref => findFilePath(ref, './'));
     // print the references in text format
-    return references
+    return filePaths
 }
 
-// test hasReference
+// test findReferences
 // console.log(findReferences('./first.md'));
+
+// find a file by filename in a directory recursively
+function findFile(fileName, directory) {
+    var found;
+    const files = fs.readdirSync(directory);
+    files.forEach(file => {
+        const curSource = `${directory}/${file}`;
+        if (fs.lstatSync(curSource).isDirectory()) {
+            findFile(fileName, curSource);
+        } else {
+            if (file == fileName) {
+                found = curSource;
+            }
+        }
+    });
+    return found;
+}
+
+// find the filepath of a file in the directory
+function findFilePath(fileName, directory) {
+    var file = findFile(fileName, directory);
+    if (file != undefined) {
+        return path.resolve(file);
+    }
+}
+
+// test find filepath
+// console.log(findFilePath('first.md', __dirname));
 
 // find out if a filepath has been referenced in a file
 function hasFilePath(file, filePath) {
@@ -54,7 +83,7 @@ const obsidianFileConditions = (tag) => (file) => {
 
     // if '.md' file
     // skip if the file doesn't have a '#<tag>' tag
-    // if (!hasTag(file, tag)) return false;
+    if (!hasTag(file, tag)) return false;
 
     return true;
 }
@@ -90,61 +119,54 @@ function copyFiles({ source, target, condition, fileList }) {
     });
 }
 
-// find out if a file is in '.gitignore'
-
 
 // recursively make a list of all the filepaths in the directory
-function makeFileList({ source, fileList, condition, gitignore }) {
-    var files;
-    try {
-        files = fs.readdirSync(source);
-    } catch (err) {
-        return fileList;
-    }
+function makeFileList({ source, fileList, condition }) {
+    const files = fs.readdirSync(source);
     files.forEach(file => {
         const curSource = `${source}/${file}`;
-        const absolutePath = path.resolve(curSource);
-
         if (fs.lstatSync(curSource).isDirectory()) {
-            // if the directory is a gitignore, skip it
-            if (gitignore.includes(file)) return;
-
-            var options = {
-                source: curSource,
-                fileList: [...fileList, absolutePath],
-                condition: condition,
-                gitignore: gitignore
-            }
-            fileList = makeFileList(options);
+            makeFileList({ source: curSource, fileList, condition });
         } else {
-            if (condition(file) == true)
+            const absolutePath = path.resolve(curSource);
+
+            if (condition(absolutePath) == true)
                 fileList.push(absolutePath);
         }
     });
-    return fileList;
 }
+
+// make a list of dependent files for each file
+function withDependencies(fileList) {
+    var dependencies = [];
+    fileList.forEach(file => {
+        dependencies = [...dependencies, ...findReferences(file)];
+    });
+    dependencies = [...fileList, ...dependencies]
+    return dependencies.filter(file => file != undefined);
+}
+
+// test makeDepedencies
+// var files = [];
+// makeFileList({ source: './', fileList: files, condition: obsidianFileConditions('csse3012') })
+// var files = withDependencies(files);
+// console.log(files)
 
 // test makeFileList
-var options = {
-    source: '.',
-    condition: obsidianFileConditions('csse3012'),
-    fileList: [],
-    gitignore: ['.git']
-}
-console.log(makeFileList(options));
+// var sampleFileList = []
+// makeFileList({ source: './', fileList: sampleFileList, condition: obsidianFileConditions('csse3012') });
+// console.log(sampleFileList)
 
-// copyFiles(
-//     options
-// );
-// copyFiles('.', './temp', noCondition('any'));
-// console.log(fileList);
+function copyByTopic(source, target, tag) {
+    // files that contain the tag
+    var fileList = [];
+    makeFileList({ source: source, fileList: fileList, condition: obsidianFileConditions(tag) });
 
-function copyByTag(source, target, tag) {
-    // copy all the files that have the tag 'csse3012'
-    copyFiles(source, target, { condition: obsidianFileConditions(tag) });
+    // include the dependencies of each file
+    fileList = withDependencies(fileList);
 
-    // copy the obsidian folder
-    copyFiles('./.obsidian', './temp/.obsidian', { condition: noCondition });
+    // copy all files to their respective folders
+    
 
     // trim empty directories
     const files = fs.readdirSync(source);
@@ -156,10 +178,12 @@ function copyByTag(source, target, tag) {
             }
         }
     });
+
+    console.log(fileList)
 }
 
-// test copyByTag
-// copyByTag('./', './temp', 'csse3012');
+// test copyByTopic
+copyByTopic('./', './temp', 'csse3012');
 
 
 // process("csse3012", "./")
