@@ -48,7 +48,6 @@ function hasFilePath(file, filePath) {
 // console.log(hasFilePath('./first.md', 'x.png'));
 
 const obsidianFileConditions = (tag) => (file) => {
-    // exclude the '.git. folder
 
     // only copy media files if file isn't a '.md' file
     if (!file.includes('.md')) return false;
@@ -91,6 +90,9 @@ function copyFiles({ source, target, condition, fileList }) {
     });
 }
 
+// find out if a file is in '.gitignore'
+
+
 // recursively make a list of all the filepaths in the directory
 function makeFileList({ source, fileList, condition, gitignore }) {
     var files;
@@ -102,7 +104,11 @@ function makeFileList({ source, fileList, condition, gitignore }) {
     files.forEach(file => {
         const curSource = `${source}/${file}`;
         const absolutePath = path.resolve(curSource);
+
         if (fs.lstatSync(curSource).isDirectory()) {
+            // if the directory is a gitignore, skip it
+            if (gitignore.includes(file)) return;
+
             var options = {
                 source: curSource,
                 fileList: [...fileList, absolutePath],
@@ -123,7 +129,7 @@ var options = {
     source: '.',
     condition: obsidianFileConditions('csse3012'),
     fileList: [],
-    gitignore: []
+    gitignore: ['.git']
 }
 console.log(makeFileList(options));
 
