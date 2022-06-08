@@ -17,26 +17,6 @@ function hasTag(file, tag) {
 // test hasTag
 // console.log(hasTag('./first.md', 'csse3012'));
 
-// return the list of references inside a file
-function findReferences(file) {
-    var fileContent
-    try {
-        fileContent = fs.readFileSync(file, { encoding: 'utf-8' });
-    } catch (err) {
-        console.log(err)
-        return;
-    }
-    const regexString = `\\[\\[(.*?)\\]\\]`
-    const referenceMatch = [...fileContent.matchAll(new RegExp(regexString, 'g'))];
-    var references = referenceMatch.map(match => match[1]);
-    var filePaths = references.map(ref => findFilePath(ref, './'));
-    // print the references in text format
-    return filePaths
-}
-
-// test findReferences
-// console.log(findReferences('./first.md'));
-
 
 // find the filepath of a file in the directory
 function findFilePath(fileName, directory) {
@@ -61,23 +41,15 @@ function findFilePath(fileName, directory) {
 
     if (filePath != undefined) {
         filePath = filePath[0];
-        return path.relative(__dirname, filePath);
+        if (filePath != undefined)
+            return path.relative(__dirname, filePath);
+        return null
     }
 }
 
 // test find filepath
-console.log(findFilePath('seventh.md', __dirname));
+// console.log(findFilePath('seventh.md', __dirname));
 
-// find out if a filepath has been referenced in a file
-function hasFilePath(file, filePath) {
-    const fileContent = fs.readFileSync(file, { encoding: 'utf-8' });
-    const regexString = `\\[\\[${filePath}\\]\\]`
-    const filePathMatch = fileContent.match(new RegExp(regexString));
-    return filePathMatch !== null;
-}
-
-// test hasFilePath
-// console.log(hasFilePath('./first.md', 'x.png'));
 
 const obsidianFileConditions = (tag) => (file) => {
 
@@ -136,16 +108,41 @@ function makeFileList({ source, fileList, condition }) {
         } else {
             const absolutePath = path.resolve(curSource);
 
-            if (condition(absolutePath) == true)
-                fileList.push(absolutePath);
+            if (condition(absolutePath) == true) {
+                let relativeFilePath = path.relative(__dirname, absolutePath);
+                fileList.push(relativeFilePath);
+            }
         }
     });
 }
 
-// test makeFileList
-// var sampleFileList = []
-// makeFileList({ source: './', fileList: sampleFileList, condition: obsidianFileConditions('csse3012') });
-// console.log(sampleFileList)
+function testMakeFileList() {
+    var sampleFileList = []
+    makeFileList({ source: './', fileList: sampleFileList, condition: obsidianFileConditions('csse3012') });
+    console.log(sampleFileList)
+}
+// testMakeFileList()
+
+// return the list of references inside a file
+function findReferences(file) {
+    var fileContent
+    try {
+        fileContent = fs.readFileSync(file, { encoding: 'utf-8' });
+    } catch (err) {
+        console.log(err)
+        return;
+    }
+    const regexString = `\\[\\[(.*?)\\]\\]`
+    const referenceMatch = [...fileContent.matchAll(new RegExp(regexString, 'g'))];
+    var references = referenceMatch.map(match => match[1]);
+    var filePaths = references.map(ref => findFilePath(ref, './'))
+        .filter(filePath => filePath != null);
+    // print the references in text format
+    return filePaths
+}
+
+// test findReferences
+// console.log(findReferences('./seventh.md'));
 
 // make a list of dependent files for each file
 function withDependencies(fileList) {
@@ -158,10 +155,13 @@ function withDependencies(fileList) {
 }
 
 // test withDependencies
-// var files = [];
-// makeFileList({ source: './', fileList: files, condition: obsidianFileConditions('csse3012') })
-// var files = withDependencies(files);
-// console.log(files)
+function testMakeDependencies() {
+    var files = [];
+    makeFileList({ source: './', fileList: files, condition: obsidianFileConditions('csse3012') })
+    var files = withDependencies(files);
+    console.log(files)
+}
+testMakeDependencies()
 
 function copyByTopic(source, target, tag) {
     // files that contain the tag
