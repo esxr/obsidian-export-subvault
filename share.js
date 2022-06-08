@@ -84,15 +84,16 @@ function copyFiles(fileList, target) {
 
 // test copyFiles
 var sampleFilePaths = [
-    'C:/Users/dhool/OneDrive/Desktop/subgraph/first.md',
-    'C:/Users/dhool/OneDrive/Desktop/subgraph/literature notes/seventh.md',
-    'C:/Users/dhool/OneDrive/Desktop/subgraph/rough notes/science/first copy.md',
-    'C:/Users/dhool/OneDrive/Desktop/subgraph/rough notes/maths/foo.md',
-    'C:/Users/dhool/OneDrive/Desktop/subgraph/second.md',
-    'C:/Users/dhool/OneDrive/Desktop/subgraph/x.png',
-    'C:/Users/dhool/OneDrive/Desktop/subgraph/third'
+    'first.md',
+    'literature notes\\seventh.md',
+    'rough notes\\maths\\foo.md',
+    'rough notes\\science\\first copy.md',
+    'second.md',
+    'x.png',
+    'third'
 ]
 
+// test copyFiles
 // copyFiles(sampleFilePaths, './temp');
 
 
@@ -161,7 +162,7 @@ function testMakeDependencies() {
     var files = withDependencies(files);
     console.log(files)
 }
-testMakeDependencies()
+// testMakeDependencies()
 
 function copyByTopic(source, target, tag) {
     // files that contain the tag
