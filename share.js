@@ -37,33 +37,36 @@ function findReferences(file) {
 // test findReferences
 // console.log(findReferences('./first.md'));
 
-// find a file by filename in a directory recursively
-function findFile(fileName, directory) {
-    var found;
-    const files = fs.readdirSync(directory);
-    files.forEach(file => {
-        const curSource = `${directory}/${file}`;
-        if (fs.lstatSync(curSource).isDirectory()) {
-            findFile(fileName, curSource);
-        } else {
-            if (file == fileName) {
-                found = curSource;
-            }
-        }
-    });
-    return found;
-}
 
 // find the filepath of a file in the directory
 function findFilePath(fileName, directory) {
-    var file = findFile(fileName, directory);
-    if (file != undefined) {
-        return path.resolve(file);
+
+    // find a file by filename in a directory recursively
+    function findFile(fileName, directory, found) {
+        const files = fs.readdirSync(directory);
+        files.forEach(file => {
+            const curSource = `${directory}/${file}`;
+            if (fs.lstatSync(curSource).isDirectory()) {
+                findFile(fileName, curSource, found);
+            } else {
+                if (file == fileName) {
+                    found.push(curSource);
+                }
+            }
+        });
+    }
+
+    var filePath = [];
+    findFile(fileName, directory, filePath);
+
+    if (filePath != undefined) {
+        filePath = filePath[0];
+        return path.relative(__dirname, filePath);
     }
 }
 
 // test find filepath
-// console.log(findFilePath('first.md', __dirname));
+console.log(findFilePath('seventh.md', __dirname));
 
 // find out if a filepath has been referenced in a file
 function hasFilePath(file, filePath) {
@@ -92,32 +95,35 @@ const noCondition = (tag) => (file) => {
     return true;
 }
 
-// recursively copy all files to another folder while preserving structure
-function copyFiles({ source, target, condition, fileList }) {
-    const files = fs.readdirSync(source);
-    if (!fs.existsSync(target)) {
-        fs.mkdirSync(target);
-    }
-    files.forEach(file => {
-        const curSource = `${source}/${file}`;
-        const curTarget = `${target}/${file}`;
-        if (fs.lstatSync(curSource).isDirectory()) {
-            copyFiles({ source: curSource, target: curTarget, condition: condition, fileList: fileList });
-        } else {
-            if (condition(file) == true) {
-                // find the absolute path of the file
-                const absolutePath = path.resolve(curSource);
+// copy all filepaths to new folder while preserving heirarchy
+function copyFiles(fileList, target) {
+    fileList.forEach(file => {
+        const fileName = path.basename(file);
+        const filePath = path.dirname(file);
+        const targetFilePath = `${target}/${filePath}`;
+        const targetFile = `${targetFilePath}/${fileName}`;
 
-                copyFiles(
-                    {
-                        source: curSource, target: curTarget, condition: condition,
-                        fileList: [...fileList, absolutePath]
-                    }
-                );
-            }
+        if (!fs.existsSync(targetFilePath)) {
+            fs.mkdirSync(targetFilePath, { recursive: true });
         }
+        fs.copyFileSync(file, targetFile);
     });
 }
+
+// test copyFiles
+var sampleFilePaths = [
+    'C:/Users/dhool/OneDrive/Desktop/subgraph/first.md',
+    'C:/Users/dhool/OneDrive/Desktop/subgraph/literature notes/seventh.md',
+    'C:/Users/dhool/OneDrive/Desktop/subgraph/rough notes/science/first copy.md',
+    'C:/Users/dhool/OneDrive/Desktop/subgraph/rough notes/maths/foo.md',
+    'C:/Users/dhool/OneDrive/Desktop/subgraph/second.md',
+    'C:/Users/dhool/OneDrive/Desktop/subgraph/x.png',
+    'C:/Users/dhool/OneDrive/Desktop/subgraph/third'
+]
+
+// copyFiles(sampleFilePaths, './temp');
+
+
 
 
 // recursively make a list of all the filepaths in the directory
@@ -136,6 +142,11 @@ function makeFileList({ source, fileList, condition }) {
     });
 }
 
+// test makeFileList
+// var sampleFileList = []
+// makeFileList({ source: './', fileList: sampleFileList, condition: obsidianFileConditions('csse3012') });
+// console.log(sampleFileList)
+
 // make a list of dependent files for each file
 function withDependencies(fileList) {
     var dependencies = [];
@@ -146,16 +157,11 @@ function withDependencies(fileList) {
     return dependencies.filter(file => file != undefined);
 }
 
-// test makeDepedencies
+// test withDependencies
 // var files = [];
 // makeFileList({ source: './', fileList: files, condition: obsidianFileConditions('csse3012') })
 // var files = withDependencies(files);
 // console.log(files)
-
-// test makeFileList
-// var sampleFileList = []
-// makeFileList({ source: './', fileList: sampleFileList, condition: obsidianFileConditions('csse3012') });
-// console.log(sampleFileList)
 
 function copyByTopic(source, target, tag) {
     // files that contain the tag
@@ -166,7 +172,7 @@ function copyByTopic(source, target, tag) {
     fileList = withDependencies(fileList);
 
     // copy all files to their respective folders
-    
+    copyFiles(fileList, target);
 
     // trim empty directories
     const files = fs.readdirSync(source);
@@ -183,7 +189,7 @@ function copyByTopic(source, target, tag) {
 }
 
 // test copyByTopic
-copyByTopic('./', './temp', 'csse3012');
+// copyByTopic('./', './temp', 'csse3012');
 
 
 // process("csse3012", "./")
