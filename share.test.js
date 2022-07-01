@@ -74,7 +74,7 @@ test('withDependencies', () => {
         'x.png',
         'third'
     ]
-    expect(withDependencies(fileList)).toEqual(expectedOutput);
+    expect(withDependencies(fileList, './')).toEqual(expectedOutput);
 })
 
 test('copyByTopic', () => {

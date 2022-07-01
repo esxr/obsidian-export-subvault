@@ -28,7 +28,7 @@ function copyByTopic({ source, target, tag }) {
     makeFileList({ source: source, fileList: fileList, condition: obsidianFileConditions({ tag }) });
 
     // include the dependencies of each file
-    fileList = withDependencies(fileList);
+    fileList = withDependencies(fileList, source);
 
     // copy all files to their respective folders
     copyFiles(fileList, target);

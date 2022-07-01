@@ -137,10 +137,10 @@ function findReferences(file, directory) {
 }
 
 // make a list of dependent files for a given fileList
-function withDependencies(fileList) {
+function withDependencies(fileList, directory) {
     var dependencies = [];
     fileList.forEach(file => {
-        dependencies = [...dependencies, ...findReferences(file)];
+        dependencies = [...dependencies, ...findReferences(file, directory)];
     });
     dependencies = [...fileList, ...dependencies]
     return dependencies.filter(file => file != undefined);
