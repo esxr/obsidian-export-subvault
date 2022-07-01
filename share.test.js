@@ -1,4 +1,5 @@
 const {
+    findFilePath,
     copyFolder,
     copyFiles,
     makeFileList,
@@ -31,6 +32,10 @@ const fs = require('fs');
 
 //-----------------------
 
+
+test('findFilePath', () => {
+    expect(findFilePath('seventh.md', __dirname)).toBe('literature notes\\seventh.md');
+})
 
 test('copyByTopic', () => {
     const expectedFileList = [

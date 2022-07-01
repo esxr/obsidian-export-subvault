@@ -42,7 +42,7 @@ function findFilePath(fileName, directory) {
     if (filePath != undefined) {
         filePath = filePath[0];
         if (filePath != undefined)
-            return path.relative(__dirname, filePath);
+            return path.relative(directory, filePath);
         return null
     }
 }
@@ -219,6 +219,7 @@ function copyFolder(source, target) {
 // copyFolder('./.obsidian', './temp/');
 
 module.exports = {
+    findFilePath,
     copyFolder,
     copyFiles,
     makeFileList,
