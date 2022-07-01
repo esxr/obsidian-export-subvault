@@ -53,8 +53,8 @@ test('findReferences', () => {
     var fileListFirst = ['x.png', 'third']
     var fileListSeventh = []
 
-    expect(findReferences('./first.md')).toEqual(fileListFirst);
-    expect(findReferences('./literature notes\\seventh.md')).toEqual(fileListSeventh);
+    expect(findReferences('first.md', './')).toEqual(fileListFirst);
+    expect(findReferences('seventh.md', './literature notes')).toEqual(fileListSeventh);
 })
 
 test('withDependencies', () => {

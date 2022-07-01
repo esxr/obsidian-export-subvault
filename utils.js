@@ -118,11 +118,11 @@ function makeFileList({ source, fileList, condition }) {
     });
 }
 
-// return the list of references inside a file
-function findReferences(file) {
+// return the list of references inside a file in a given directory
+function findReferences(file, directory) {
     var fileContent
     try {
-        fileContent = fs.readFileSync(file, { encoding: 'utf-8' });
+        fileContent = fs.readFileSync(`${directory}/${file}`, { encoding: 'utf-8' });
     } catch (err) {
         console.log(err)
         return;
@@ -130,7 +130,7 @@ function findReferences(file) {
     const regexString = `\\[\\[(.*?)\\]\\]`
     const referenceMatch = [...fileContent.matchAll(new RegExp(regexString, 'g'))];
     var references = referenceMatch.map(match => match[1]);
-    var filePaths = references.map(ref => findFilePath(ref, './'))
+    var filePaths = references.map(ref => findFilePath(ref, directory))
         .filter(filePath => filePath != null);
     // print the references in text format
     return filePaths
@@ -145,16 +145,6 @@ function withDependencies(fileList) {
     dependencies = [...fileList, ...dependencies]
     return dependencies.filter(file => file != undefined);
 }
-
-// test withDependencies
-function testMakeDependencies() {
-    var files = [];
-    makeFileList({ source: './', fileList: files, condition: obsidianFileConditions({tag: 'csse3012'}) })
-    var files = withDependencies(files);
-    console.log(files)
-}
-
-testMakeDependencies()
 
 // Copy a source folder into target folder recursively
 function copyFolder(source, target) {
