@@ -37,6 +37,26 @@ test('findFilePath', () => {
     expect(findFilePath('seventh.md', __dirname)).toBe('literature notes\\seventh.md');
 })
 
+test('makeFileList', () => {
+    var fileList = [];
+    makeFileList({ source: __dirname, fileList: fileList, condition: obsidianFileConditions({ tag: 'csse3012' }) });
+    expect(fileList).toEqual([
+        'first.md',
+        'literature notes\\seventh.md',
+        'rough notes\\maths\\foo.md',
+        'rough notes\\science\\first copy.md',
+        'second.md'
+    ]);
+})
+
+test('findReferences', () => {
+    var fileListFirst = [ 'x.png', 'third' ]
+    var fileListSeventh = []
+
+    expect(findReferences('./first.md')).toEqual(fileListFirst);
+    expect(findReferences('./literature notes\\seventh.md')).toEqual(fileListSeventh);
+})
+
 test('copyByTopic', () => {
     const expectedFileList = [
         'temp\\.obsidian\\somefile.js',

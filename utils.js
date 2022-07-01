@@ -156,7 +156,7 @@ function findReferences(file) {
 }
 
 // test findReferences
-// console.log(findReferences('./seventh.md'));
+console.log(findReferences('./first.md'));
 
 // make a list of dependent files for each file
 function withDependencies(fileList) {
