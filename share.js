@@ -4,6 +4,7 @@ const {
     makeFileList,
     withDependencies,
     findReferences,
+    noCondition,
     obsidianFileConditions
 } = require('./utils.js');
 
@@ -21,7 +22,7 @@ const path = require("path");
  * 
  * @returns null
  */
-function copyByTopic({source, target, tag}) {
+function copyByTopic({ source, target, tag }) {
     // files that contain the tag
     var fileList = [];
     makeFileList({ source: source, fileList: fileList, condition: obsidianFileConditions({ tag }) });
@@ -45,7 +46,7 @@ function copyByTopic({source, target, tag}) {
     });
 
     // copy the obsidian folder into the new directory
-    copyFolder('./.obsidian', target);
+    copyFolder(`${source}/.obsidian`, target);
 
     console.log(fileList)
 }

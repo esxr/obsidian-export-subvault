@@ -111,6 +111,8 @@ var sampleFilePaths = [
 
 // recursively make a list of all the filepaths in the directory
 function makeFileList({ source, fileList, condition }) {
+    // if directory doesn't exist, return
+    if (!fs.existsSync(source)) return;
     const files = fs.readdirSync(source);
     files.forEach(file => {
         const curSource = `${source}/${file}`;
@@ -132,6 +134,7 @@ function testMakeFileList() {
     makeFileList({ source: './', fileList: sampleFileList, condition: obsidianFileConditions('csse3012') });
     console.log(sampleFileList)
 }
+
 // testMakeFileList()
 
 // return the list of references inside a file
@@ -221,5 +224,6 @@ module.exports = {
     makeFileList,
     withDependencies,
     findReferences,
-    obsidianFileConditions
+    obsidianFileConditions,
+    noCondition
 }

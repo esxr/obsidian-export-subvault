@@ -1,0 +1,16 @@
+{
+  "name": "subgraph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/esxr/obsidian-export-subvault.git",
+  "author": "Pranav Dhoolia <dhoolia.pranav@gmail.com>",
+  "license": "AGPL",
+  "private": false,
+  "devDependencies": {
+    "jest": "^28.1.2"
+  },
+  "scripts": {
+    "test": "jest",
+    "dev": "node share.js"
+  }
+}
