@@ -14,10 +14,6 @@ function hasTag(file, tag) {
     return tagMatch !== null;
 }
 
-// test hasTag
-// console.log(hasTag('./first.md', 'csse3012'));
-
-
 // find the filepath of a file in the directory
 function findFilePath(fileName, directory) {
 
@@ -46,9 +42,6 @@ function findFilePath(fileName, directory) {
         return null
     }
 }
-
-// test find filepath
-// console.log(findFilePath('seventh.md', __dirname));
 
 
 const obsidianFileConditions = ({ tag, filename }) => (file) => {
@@ -105,10 +98,6 @@ var sampleFilePaths = [
     'third'
 ]
 
-// test copyFiles
-// copyFiles(sampleFilePaths, './temp');
-
-
 // recursively make a list of all the filepaths in the directory
 function makeFileList({ source, fileList, condition }) {
     // if directory doesn't exist, return
@@ -129,14 +118,6 @@ function makeFileList({ source, fileList, condition }) {
     });
 }
 
-function testMakeFileList() {
-    var sampleFileList = []
-    makeFileList({ source: './', fileList: sampleFileList, condition: obsidianFileConditions('csse3012') });
-    console.log(sampleFileList)
-}
-
-// testMakeFileList()
-
 // return the list of references inside a file
 function findReferences(file) {
     var fileContent
@@ -155,10 +136,7 @@ function findReferences(file) {
     return filePaths
 }
 
-// test findReferences
-console.log(findReferences('./first.md'));
-
-// make a list of dependent files for each file
+// make a list of dependent files for a given fileList
 function withDependencies(fileList) {
     var dependencies = [];
     fileList.forEach(file => {
@@ -171,11 +149,12 @@ function withDependencies(fileList) {
 // test withDependencies
 function testMakeDependencies() {
     var files = [];
-    makeFileList({ source: './', fileList: files, condition: obsidianFileConditions('csse3012') })
+    makeFileList({ source: './', fileList: files, condition: obsidianFileConditions({tag: 'csse3012'}) })
     var files = withDependencies(files);
     console.log(files)
 }
-// testMakeDependencies()
+
+testMakeDependencies()
 
 // Copy a source folder into target folder recursively
 function copyFolder(source, target) {

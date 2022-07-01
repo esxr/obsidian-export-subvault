@@ -50,11 +50,31 @@ test('makeFileList', () => {
 })
 
 test('findReferences', () => {
-    var fileListFirst = [ 'x.png', 'third' ]
+    var fileListFirst = ['x.png', 'third']
     var fileListSeventh = []
 
     expect(findReferences('./first.md')).toEqual(fileListFirst);
     expect(findReferences('./literature notes\\seventh.md')).toEqual(fileListSeventh);
+})
+
+test('withDependencies', () => {
+    let fileList = [
+        'first.md',
+        'literature notes\\seventh.md',
+        'rough notes\\maths\\foo.md',
+        'rough notes\\science\\first copy.md',
+        'second.md'
+    ]
+    let expectedOutput = [
+        'first.md',
+        'literature notes\\seventh.md',
+        'rough notes\\maths\\foo.md',
+        'rough notes\\science\\first copy.md',
+        'second.md',
+        'x.png',
+        'third'
+    ]
+    expect(withDependencies(fileList)).toEqual(expectedOutput);
 })
 
 test('copyByTopic', () => {
